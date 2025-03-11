@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Matura Podstawowa – Kategorie</title>
+  <style>
+    /* Globalny reset i podstawowa stylizacja */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    /* Nagłówek z przyciskiem powrotu w lewym górnym rogu */
+    .header {
+      width: 100%;
+      background-color: #4a90e2;
+      color: white;
+      padding: 20px 0;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+    
+    .back-button-header {
+      position: absolute;
+      left: 20px;
+      background-color: #4a90e2;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 3px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease;
+    }
+    
+    .back-button-header:hover {
+      background-color: #357ABD;
+    }
+    
+    /* Główny kontener */
+    .content {
+      max-width: 800px;
+      width: 90%;
+      margin-top: 30px;
+      padding: 0 15px;
+    }
+    
+    /* Pojedynczy wiersz – kategoria */
+    .category {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: white;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .category-name {
+      font-size: 1.1em;
+    }
+    
+    .generator-button {
+      background-color: #4a90e2;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 3px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease;
+    }
+    
+    .generator-button:hover {
+      background-color: #357ABD;
+    }
+    
+    /* Kontener przy przycisku powrotu umieszczonym na dole */
+    .back-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+    
+    .back-button {
+      background-color: #4a90e2;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 3px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease;
+    }
+    
+    .back-button:hover {
+      background-color: #357ABD;
+    }
+
+    /* Media Queries dla urządzeń mobilnych */
+    @media (max-width: 600px) {
+      .content {
+         width: 95%;
+         margin-top: 20px;
+      }
+      .category {
+         flex-direction: column;
+         text-align: center;
+      }
+      .category-name {
+         margin-bottom: 10px;
+         font-size: 1em;
+      }
+      .generator-button {
+         padding: 8px 12px;
+         font-size: 0.9em;
+      }
+      .header {
+         padding: 15px 0;
+      }
+      .header h1 {
+         font-size: 1.5em;
+      }
+      .back-button-header {
+         padding: 8px 12px;
+         font-size: 0.9em;
+         left: 10px;
+      }
+      .back-button {
+         padding: 8px 16px;
+         font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Nagłówek z przyciskiem powrotu w lewym górnym rogu -->
+  <div class="header">
+    <button class="back-button-header" onclick="location.href='index.html'">Powrót</button>
+    <h1>Matura Podstawowa – Kategorie</h1>
+  </div>
+  
+  <div class="content">
+    <!-- Lista kategorii zostanie wygenerowana dynamicznie za pomocą JavaScript -->
+  </div>
+  
+  <!-- Opcjonalny przycisk powrotu na dole strony -->
+  <div class="back-container">
+    <button class="back-button" onclick="location.href='index.html'">Powrót</button>
+  </div>
+  
+  <script>
+    // Lista kategorii zgodnie z Twoją listą
+    const categoriesFromImage = [
+      "Procenty",
+      "Kapitalizacja odsetek",
+      "Potęgi i pierwiastki",
+      "Wartość bezwzględna",
+      "Błąd względny i bezwzględny",
+      "Proporcjonalność prosta i odwrotna",
+      "Wyrażenia algebraiczne i wzory skróconego mnożenia",
+      "Własności funkcji",
+      "Przesuwanie wykresu funkcji",
+      "Własności funkcji liniowej na podstawie wzoru",
+      "Własności funkcji liniowej na podstawie wykresu",
+      "Funkcja liniowa z parametrem",
+      "Proste równoległe",
+      "Proste prostopadłe",
+      "Równania i nierówności liniowe",
+      "Układy równań liniowych",
+      "Funkcja kwadratowa",
+      "Równania kwadratowe",
+      "Nierówności kwadratowe",
+      "Równania z iloczynem nawiasów",
+      "Wielomiany",
+      "Dowody podzielności liczb",
+      "Udowodnij, uzasadnij, wykaż",
+      "Własności funkcji na podstawie jej wykresu",
+      "Funkcja liniowa",
+      "Zadania tekstowe",
+      "Własności funkcji kwadratowej",
+      "Praktyczne zastosowanie funkcji kwadratowej",
+      "Funkcja kwadratowa z parametrem",
+      "Średnia prędkość",
+      "Równania wymierne",
+      "Funkcja wykładnicza",
+      "Logarytmy",
+      "Wzór ciągu",
+      "Ciąg arytmetyczny",
+      "Ciąg geometryczny",
+      "Trygonometria",
+      "Wykaż na płaszczyźnie"
+    ];
+  
+    // Grupowanie – scalanie powtórzeń (klucz: nazwa, wartość: liczba wystąpień)
+    const categoryCounts = categoriesFromImage.reduce((acc, name) => {
+      acc[name] = (acc[name] || 0) + 1;
+      return acc;
+    }, {});
+  
+    // Tablica unikalnych nazw kategorii
+    const uniqueCategories = Object.keys(categoryCounts);
+  
+    // Selektor do kontenera, w którym wygenerujemy wiersze
+    const contentDiv = document.querySelector('.content');
+  
+    // Dla każdej unikalnej kategorii tworzymy wiersz z nazwą oraz przyciskiem "Generator"
+    uniqueCategories.forEach(category => {
+      const categoryDiv = document.createElement('div');
+      categoryDiv.classList.add('category');
+  
+      // Lewa strona – wyświetlenie nazwy kategorii
+      const categoryNameDiv = document.createElement('div');
+      categoryNameDiv.classList.add('category-name');
+      categoryNameDiv.textContent = category;
+  
+      // Prawa strona – przycisk do generatora
+      const generatorBtn = document.createElement('button');
+      generatorBtn.classList.add('generator-button');
+      generatorBtn.textContent = "Generator";
+      generatorBtn.onclick = () => {
+        if (category === "Procenty") {
+          // Zaktualizowana ścieżka dla kategorii "Procenty"
+          location.href = 'generatory/generatorProcenty.html';
+        } else {
+          // Dla pozostałych kategorii przekazujemy nazwę kategorii jako parametr
+          location.href = 'generatory/generator.html?category=' + encodeURIComponent(category);
+        }
+      };
+  
+      // Dodajemy elementy do wiersza
+      categoryDiv.appendChild(categoryNameDiv);
+      categoryDiv.appendChild(generatorBtn);
+  
+      // Wstawiamy wiersz do kontenera
+      contentDiv.appendChild(categoryDiv);
+    });
+  </script>
+</body>
+</html>
