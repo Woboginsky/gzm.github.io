@@ -399,6 +399,61 @@
           <div class="generated-solution-container"></div>
         </div>
       </div>
+      
+      <!-- Nowy div z przykładem i generatorem -->
+      <div class="task-card" data-task-type="percentage-base">
+        <div class="task-left">
+          <h2>Zadanie maturalne (1 pkt)</h2>
+          <p>Liczba 78 stanowi 150% liczby <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math>. Wtedy liczba <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> jest równa</p>
+          <p>
+            A. 60<br>
+            B. 52<br>
+            C. 48<br>
+            D. 39
+          </p>
+          <h3>Teoria</h3>
+          <p>- Procenty<br>- Zamiana procentu na ułamek</p>
+          
+          <h3>Rozwiązanie:</h3>
+          <p>150% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> = 78</p>
+          <p>
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <mfrac><mn>150</mn><mn>100</mn></mfrac>
+              <mo>·</mo>
+              <mi>c</mi>
+              <mo>=</mo>
+              <mn>78</mn>
+            </math>
+          </p>
+          <p>
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <mn>1.5</mn>
+              <mo>·</mo>
+              <mi>c</mi>
+              <mo>=</mo>
+              <mn>78</mn>
+            </math>
+          </p>
+          <p>
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <mi>c</mi>
+              <mo>=</mo>
+              <mfrac><mn>78</mn><mn>1.5</mn></mfrac>
+              <mo>=</mo>
+              <mn>52</mn>
+            </math>
+          </p>
+          <p>Odp. Liczba <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> jest równa 52.</p>
+        </div>
+        <div class="task-right">
+          <button class="button" onclick="generateSimilarTask(this)">Generuj podobne</button>
+          <div class="generated-task-content"></div>
+          <button class="button" onclick="showGeneratedAnswer(this)">Odpowiedź</button>
+          <button class="button" onclick="showGeneratedSolution(this)">Rozwiązanie</button>
+          <div class="generated-answer-container"></div>
+          <div class="generated-solution-container"></div>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -414,8 +469,14 @@
         card.querySelector('.generated-answer-container').innerHTML = '';
         card.querySelector('.generated-solution-container').innerHTML = '';
       });
+      
       const randomIndex = Math.floor(Math.random() * taskCards.length);
-      taskCards[randomIndex].classList.remove('hidden');
+      const selectedCard = taskCards[randomIndex];
+      selectedCard.classList.remove('hidden');
+      
+      // Automatycznie generuj podobne zadanie po wylosowaniu
+      const generateButton = selectedCard.querySelector('.button[onclick="generateSimilarTask(this)"]');
+      generateSimilarTask(generateButton);
     }
     
     // Funkcja generująca podobne zadanie (uniwersalna – rozróżnia po data-task-type)
@@ -439,6 +500,8 @@
         generateSimilarLandPriceTask(card, contentDiv);
       } else if (taskType === 'printer-price') {
         generateSimilarPrinterPriceTask(card, contentDiv);
+      } else if (taskType === 'percentage-base') {
+        generateSimilarPercentageBaseTask(card, contentDiv);
       }
     }
     
@@ -659,6 +722,37 @@
       card.dataset.totalDiscount = totalDiscount;
     }
     
+    // --- Generator dla zadania typu "percentage-base" (znalezienie liczby podstawowej) z MathML ---
+    function generateSimilarPercentageBaseTask(card, contentDiv) {
+      const baseNumber = Math.floor(Math.random() * (100 - 20) + 20); // liczba od 20 do 100
+      const percentage = Math.floor(Math.random() * (200 - 120) + 120); // procent od 120% do 200%
+      const result = (baseNumber * percentage / 100).toFixed(0);
+      
+      const taskContent = `
+        <h3>Podobne zadanie:</h3>
+        <p>
+          Liczba ${result} stanowi ${percentage}% liczby 
+          <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math>. 
+          Wtedy liczba 
+          <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> 
+          jest równa
+        </p>
+        <p>
+          A. ${Math.floor(baseNumber * 1.2)}<br>
+          B. ${baseNumber}<br>
+          C. ${Math.floor(baseNumber * 0.9)}<br>
+          D. ${Math.floor(baseNumber * 0.75)}
+        </p>
+      `;
+      
+      contentDiv.innerHTML = taskContent;
+      
+      // Zapisz dane do wykorzystania w odpowiedzi/rozwiązaniu
+      card.dataset.baseNumber = baseNumber;
+      card.dataset.percentage = percentage;
+      card.dataset.result = result;
+    }
+    
     // Wyświetlanie odpowiedzi w zależności od typu zadania
     function showGeneratedAnswer(button) {
       const card = button.closest('.task-card');
@@ -708,6 +802,15 @@
         answerContainer.innerHTML = `
           <p><strong>Odpowiedź:</strong> 
             Cena drukarki po dwóch obniżkach zmniejszyła się o ${totalDiscount}%.
+          </p>
+        `;
+      } else if (taskType === 'percentage-base') {
+        const baseNumber = card.dataset.baseNumber;
+        answerContainer.innerHTML = `
+          <p><strong>Odpowiedź:</strong> 
+            Liczba 
+            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> 
+            jest równa ${baseNumber}.
           </p>
         `;
       }
@@ -913,6 +1016,46 @@
             0,${(1 - firstDiscount/100) * (1 - secondDiscount/100)} = 72% = 100% - ${totalDiscount}%
           </p>
           <p>Odp. Cena drukarki po dwóch obniżkach zmniejszyła się o ${totalDiscount}%.</p>
+        `;
+      } else if (taskType === 'percentage-base') {
+        const baseNumber = card.dataset.baseNumber;
+        const percentage = card.dataset.percentage;
+        const result = card.dataset.result;
+        
+        solutionContainer.innerHTML = `
+          <h3>Teoria</h3>
+          <p>- Procenty<br>- Zamiana procentu na ułamek</p>
+          
+          <h3>Rozwiązanie:</h3>
+          <p>${percentage}% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> = ${result}</p>
+          <p>
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <mfrac><mn>${percentage}</mn><mn>100</mn></mfrac>
+              <mo>·</mo>
+              <mi>c</mi>
+              <mo>=</mo>
+              <mn>${result}</mn>
+            </math>
+          </p>
+          <p>
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <mn>${percentage/100}</mn>
+              <mo>·</mo>
+              <mi>c</mi>
+              <mo>=</mo>
+              <mn>${result}</mn>
+            </math>
+          </p>
+          <p>
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+              <mi>c</mi>
+              <mo>=</mo>
+              <mfrac><mn>${result}</mn><mn>${percentage/100}</mn></mfrac>
+              <mo>=</mo>
+              <mn>${baseNumber}</mn>
+            </math>
+          </p>
+          <p>Odp. Liczba <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> jest równa ${baseNumber}.</p>
         `;
       }
     }
