@@ -1068,5 +1068,15 @@
     // Przy załadowaniu strony (opcjonalnie) losujemy kartę
     window.onload = displayRandomTask;
   </script>
+  <script>
+    function generatePercentage() {
+        // ...existing code...
+        let result = calculatePercentage(); // Przykładowa funkcja obliczająca procenty
+        let rounded = Math.round(result);
+        let displayResult = result === rounded ? result : `${rounded} ≈`;
+        document.getElementById('result').innerText = displayResult;
+    }
+    // ...existing code...
+  </script>
 </body>
 </html>
