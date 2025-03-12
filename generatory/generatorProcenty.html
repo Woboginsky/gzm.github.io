@@ -705,9 +705,10 @@
     
     // --- Generator dla zadania typu "percentage-base" (znalezienie liczby podstawowej) z MathML ---
     function generateSimilarPercentageBaseTask(card, contentDiv) {
-      const baseNumber = Math.floor(Math.random() * (100 - 20) + 20); // liczba od 20 do 100
       const percentage = Math.floor(Math.random() * (200 - 120) + 120); // procent od 120% do 200%
-      const result = (baseNumber * percentage / 100).toFixed(0);
+      const baseNumber = Math.floor(Math.random() * (100 - 20) + 20); // liczba od 20 do 100
+      // Obliczamy wynik tak, aby był całkowity
+      const result = Math.floor((baseNumber * percentage) / 100);
       
       const taskContent = `
         <h3>Podobne zadanie:</h3>
