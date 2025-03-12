@@ -206,29 +206,29 @@
       "Trygonometria",
       "Wykaż na płaszczyźnie"
     ];
-  
+
     // Grupowanie – scalanie powtórzeń (klucz: nazwa, wartość: liczba wystąpień)
     const categoryCounts = categoriesFromImage.reduce((acc, name) => {
       acc[name] = (acc[name] || 0) + 1;
       return acc;
     }, {});
-  
+
     // Tablica unikalnych nazw kategorii
     const uniqueCategories = Object.keys(categoryCounts);
-  
+
     // Selektor do kontenera, w którym wygenerujemy wiersze
     const contentDiv = document.querySelector('.content');
-  
+
     // Dla każdej unikalnej kategorii tworzymy wiersz z nazwą oraz przyciskiem "Generator"
     uniqueCategories.forEach(category => {
       const categoryDiv = document.createElement('div');
       categoryDiv.classList.add('category');
-  
+
       // Lewa strona – wyświetlenie nazwy kategorii
       const categoryNameDiv = document.createElement('div');
       categoryNameDiv.classList.add('category-name');
       categoryNameDiv.textContent = category;
-  
+
       // Prawa strona – przycisk do generatora
       const generatorBtn = document.createElement('button');
       generatorBtn.classList.add('generator-button');
@@ -242,11 +242,11 @@
           location.href = 'generatory/generator.html?category=' + encodeURIComponent(category);
         }
       };
-  
+
       // Dodajemy elementy do wiersza
       categoryDiv.appendChild(categoryNameDiv);
       categoryDiv.appendChild(generatorBtn);
-  
+
       // Wstawiamy wiersz do kontenera
       contentDiv.appendChild(categoryDiv);
     });

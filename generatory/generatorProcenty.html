@@ -444,15 +444,22 @@
     
     // --- Generator dla zadania typu "bars" (wykres płac) z MathML ---
     function generateSimilarBarsTask(card, contentDiv) {
-      // Przykładowe losowe dane
-      const totalEmployees = Math.floor(Math.random() * (300 - 150) + 150);
+      // Przykładowe losowe dane z poprawionymi zakresami
+      const totalEmployees = Math.floor(Math.random() * (300 - 150) + 150); // Zmniejszony zakres dla lepszej czytelności
       const salaries = [
-        Math.floor(Math.random() * (80 - 60) + 60),
-        Math.floor(Math.random() * (60 - 40) + 40),
-        Math.floor(Math.random() * (40 - 20) + 20),
-        Math.floor(Math.random() * (20 - 10) + 10),
-        Math.floor(Math.random() * (10 - 5) + 5)
+        Math.floor(Math.random() * (100 - 60) + 60),  // Zwiększony zakres dla pierwszej grupy
+        Math.floor(Math.random() * (60 - 30) + 30),   // Poprawiony zakres dla drugiej grupy
+        Math.floor(Math.random() * (30 - 15) + 15),   // Poprawiony zakres dla trzeciej grupy
+        Math.floor(Math.random() * (15 - 5) + 5),     // Poprawiony zakres dla czwartej grupy
+        Math.floor(Math.random() * 5 + 1)             // Poprawiony zakres dla piątej grupy
       ];
+      
+      // Upewniamy się, że suma wszystkich pracowników zgadza się z totalEmployees
+      const currentSum = salaries.reduce((a, b) => a + b, 0);
+      if (currentSum !== totalEmployees) {
+        salaries[0] += totalEmployees - currentSum;
+      }
+      
       const sumUpToLimit = salaries[0] + salaries[1] + salaries[2];
       const fraction = (sumUpToLimit / totalEmployees).toFixed(4); // np. 0.9063
       const percentage = Math.round(parseFloat(fraction) * 100);   // np. 91
@@ -512,9 +519,14 @@
     
     // --- Generator dla zadania typu "discount" (podwójna obniżka ceny) z MathML ---
     function generateSimilarDiscountTask(card, contentDiv) {
-      // Losujemy dwie różne obniżki procentowe (np. 10–40%)
-      const p1 = Math.floor(Math.random() * 31) + 10;
-      const p2 = Math.floor(Math.random() * 31) + 10;
+      // Losujemy dwie różne obniżki procentowe
+      let p1 = Math.floor(Math.random() * 31) + 10;
+      let p2 = Math.floor(Math.random() * 31) + 10;
+      
+      // Upewniamy się, że obniżki są różne
+      while (p1 === p2) {
+        p2 = Math.floor(Math.random() * 31) + 10;
+      }
       
       // Obliczamy końcowy ułamek ceny (1 - p1/100)*(1 - p2/100)
       const firstFactor = (1 - p1 / 100);
@@ -544,10 +556,10 @@
     
     // --- Generator dla zadania typu "example" (przykład) z MathML ---
     function generateSimilarExampleTask(card, contentDiv) {
-      // Przykładowe losowe dane
+      // Losujemy procent między 10 a 90
+      const percentage = Math.floor(Math.random() * 81) + 10; // 10-90%
       const x = Math.floor(Math.random() * (5000 - 1000) + 1000);
       const difference = Math.floor(Math.random() * (3000 - 1000) + 1000);
-      const percentage = 30;
       const result = (difference / (percentage / 100)).toFixed(2);
       
       // Wygenerowana treść zadania
@@ -573,6 +585,7 @@
       contentDiv.innerHTML = taskContent;
       
       // Zapisujemy dane do wykorzystania w odpowiedzi/rozwiązaniu
+      card.dataset.percentage = percentage;
       card.dataset.x = x;
       card.dataset.difference = difference;
       card.dataset.result = result;
@@ -580,15 +593,17 @@
     
     // --- Generator dla zadania typu "land-price" (cena działki) z MathML ---
     function generateSimilarLandPriceTask(card, contentDiv) {
-      // Przykładowe losowe dane
+      // Losujemy procent obniżki między 5 a 30
+      const discount = Math.floor(Math.random() * 26) + 5; // 5-30%
       const initialPrice = Math.floor(Math.random() * (150000 - 50000) + 50000);
-      const finalPrice = (initialPrice * 0.81).toFixed(2);
+      const factor = (1 - discount/100) * (1 - discount/100); // Dwukrotne zastosowanie tej samej obniżki
+      const finalPrice = (initialPrice * factor).toFixed(2);
       
       // Wygenerowana treść zadania
       const taskContent = `
         <h3>Podobne zadanie:</h3>
         <p>
-          Cena działki po kolejnych dwóch obniżkach, za każdym razem o 10% w odniesieniu do ceny obowiązującej w danym momencie, jest równa ${finalPrice} zł. Cena tej działki przed obiema obniżkami była, w zaokrągleniu do 1 zł, równa
+          Cena działki po kolejnych dwóch obniżkach, za każdym razem o ${discount}% w odniesieniu do ceny obowiązującej w danym momencie, jest równa ${finalPrice} zł. Cena tej działki przed obiema obniżkami była, w zaokrągleniu do 1 zł, równa
         </p>
         <p>
           A. ${(initialPrice * 1.02).toFixed(2)} zł<br>
@@ -601,18 +616,24 @@
       contentDiv.innerHTML = taskContent;
       
       // Zapisujemy dane do wykorzystania w odpowiedzi/rozwiązaniu
+      card.dataset.discount = discount;
       card.dataset.initialPrice = initialPrice;
       card.dataset.finalPrice = finalPrice;
     }
     
     // --- Generator dla zadania typu "printer-price" (cena drukarki) z MathML ---
     function generateSimilarPrinterPriceTask(card, contentDiv) {
-      // Przykładowe losowe dane
+      // Losujemy dwa różne procenty obniżek
+      const firstDiscount = Math.floor(Math.random() * 31) + 10; // 10-40%
+      let secondDiscount = Math.floor(Math.random() * 31) + 10;
+      while (secondDiscount === firstDiscount) {
+        secondDiscount = Math.floor(Math.random() * 31) + 10;
+      }
+      
       const initialPrice = Math.floor(Math.random() * (1500 - 500) + 500);
-      const firstDiscount = 20;
-      const secondDiscount = 10;
-      const finalPrice = (initialPrice * (1 - firstDiscount / 100) * (1 - secondDiscount / 100)).toFixed(2);
-      const totalDiscount = 100 - (finalPrice / initialPrice * 100).toFixed(2);
+      const factor = (1 - firstDiscount/100) * (1 - secondDiscount/100);
+      const finalPrice = (initialPrice * factor).toFixed(2);
+      const totalDiscount = (100 * (1 - factor)).toFixed(2);
       
       // Wygenerowana treść zadania
       const taskContent = `
@@ -631,6 +652,8 @@
       contentDiv.innerHTML = taskContent;
       
       // Zapisujemy dane do wykorzystania w odpowiedzi/rozwiązaniu
+      card.dataset.firstDiscount = firstDiscount;
+      card.dataset.secondDiscount = secondDiscount;
       card.dataset.initialPrice = initialPrice;
       card.dataset.finalPrice = finalPrice;
       card.dataset.totalDiscount = totalDiscount;
@@ -652,7 +675,8 @@
             </math>
             pracowników zarabia nie więcej niż 
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>5000</mn></math> zł.
-          </p>`;
+          </p>
+        `;
       } else if (taskType === 'discount') {
         const fraction = card.dataset.finalFraction;
         answerContainer.innerHTML = `
@@ -689,7 +713,7 @@
       }
     }
     
-    // Wyświetlanie rozwiązania w stylu Twoich przykładów
+    // Wyświetlanie rozwiązania w zależności od typu zadania
     function showGeneratedSolution(button) {
       const card = button.closest('.task-card');
       const taskType = card.dataset.taskType;
@@ -743,14 +767,12 @@
               <mo>%</mo>
             </math>
           </p>
-          <p>
-            liczby wszystkich pracowników tej firmy.
-          </p>
+          <p>liczby wszystkich pracowników tej firmy.</p>
           <p>
             Odp. W firmie G płaca brutto 
             <math xmlns="http://www.w3.org/1998/Math/MathML">
               <mn>${percentage}</mn><mo>%</mo>
-            </math>
+            </math> 
             pracowników nie przewyższa 
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>5000</mn></math> zł.
           </p>
@@ -774,10 +796,6 @@
             </math>
             to 
             <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mn>100</mn><mo>%</mo>
-              <mo>−</mo>
-              <mn>${p1}</mn><mo>%</mo>
-              <mo>=</mo>
               <mn>${100 - p1}</mn><mo>%</mo>
             </math>
             ceny początkowej.
@@ -818,6 +836,7 @@
         `;
       } else if (taskType === 'example') {
         // Dane do zadania z przykładem
+        const percentage = card.dataset.percentage;
         const x = card.dataset.x;
         const difference = card.dataset.difference;
         const result = card.dataset.result;
@@ -828,23 +847,20 @@
           
           <h3>Rozwiązanie:</h3>
           <p>
-            30% z 
+            ${percentage}% z 
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
             = 
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
             - ${difference}<br>
-            0,3
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
+            0,${percentage/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
             = 
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
             - ${difference}<br>
-            0,3
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
+            0,${percentage/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
             - 
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
             = -${difference}<br>
-            -0,7
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
+            -0,${(100 - percentage)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
             = -${difference}<br>
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
             = ${result}
@@ -856,6 +872,7 @@
         `;
       } else if (taskType === 'land-price') {
         // Dane do zadania z ceną działki
+        const discount = card.dataset.discount;
         const initialPrice = card.dataset.initialPrice;
         const finalPrice = card.dataset.finalPrice;
         
@@ -866,16 +883,18 @@
           <h3>Rozwiązanie:</h3>
           <p>
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> – cena początkowa działki<br>
-            Cena obniżona o 10% to 100% - 10% = 90% początkowej ceny.<br>
-            Cena po pierwszej obniżce: 90% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,9<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
-            Cena po drugiej obniżce: 90% z 0,9<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,9 * 0,9<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,81<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
-            0,81<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = ${finalPrice} / : 0,81<br>
+            Cena obniżona o ${discount}% to 100% - ${discount}% = ${100 - discount}% początkowej ceny.<br>
+            Cena po pierwszej obniżce: ${100 - discount}% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(100 - discount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
+            Cena po drugiej obniżce: ${100 - discount}% z 0,${(100 - discount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(100 - discount)/100} * 0,${(100 - discount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(1 - discount/100) * (1 - discount/100)}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
+            0,${(1 - discount/100) * (1 - discount/100)}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = ${finalPrice} / : 0,${(1 - discount/100) * (1 - discount/100)}<br>
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = ${initialPrice}
           </p>
           <p>Odp. Początkowa cena działki jest równa ${initialPrice} zł.</p>
         `;
       } else if (taskType === 'printer-price') {
         // Dane do zadania z ceną drukarki
+        const firstDiscount = card.dataset.firstDiscount;
+        const secondDiscount = card.dataset.secondDiscount;
         const initialPrice = card.dataset.initialPrice;
         const finalPrice = card.dataset.finalPrice;
         const totalDiscount = card.dataset.totalDiscount;
@@ -887,11 +906,11 @@
           <h3>Rozwiązanie:</h3>
           <p>
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> – początkowa cena drukarki<br>
-            Po pierwszej obniżce cena drukarki to 100% - 20% = 80% początkowej ceny.<br>
-            80% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,8<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
-            Po drugiej obniżce cena drukarki to 100% - 10% = 90% poprzedniej ceny.<br>
-            90% z 0,8<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,9 * 0,8<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,72<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
-            0,72 = 72% = 100% - 28%
+            Po pierwszej obniżce cena drukarki to 100% - ${firstDiscount}% = ${100 - firstDiscount}% początkowej ceny.<br>
+            ${100 - firstDiscount}% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(100 - firstDiscount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
+            Po drugiej obniżce cena drukarki to 100% - ${secondDiscount}% = ${100 - secondDiscount}% poprzedniej ceny.<br>
+            ${100 - secondDiscount}% z 0,${(100 - firstDiscount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(100 - secondDiscount)/100} * 0,${(100 - firstDiscount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(1 - firstDiscount/100) * (1 - secondDiscount/100)}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
+            0,${(1 - firstDiscount/100) * (1 - secondDiscount/100)} = 72% = 100% - ${totalDiscount}%
           </p>
           <p>Odp. Cena drukarki po dwóch obniżkach zmniejszyła się o ${totalDiscount}%.</p>
         `;
