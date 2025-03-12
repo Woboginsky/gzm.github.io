@@ -628,20 +628,12 @@
       // Wygenerowana treść zadania
       const taskContent = `
         <h3>Podobne zadanie:</h3>
-        <p>
-          ${percentage}% liczby 
+        <p>${percentage}% liczby 
           <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
           jest o ${difference} mniejsze od liczby 
           <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math>. 
-          Liczba 
-          <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
-          jest równa
-        </p>
-        <p>
-          A. ${result}<br>
-          B. ${Math.floor(result / 2)}<br>
-          C. ${Math.floor(result * 2)}<br>
-          D. ${Math.floor(result / 3)}
+          Oblicz liczbę
+          <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math>.
         </p>
       `;
       
@@ -666,13 +658,9 @@
       const taskContent = `
         <h3>Podobne zadanie:</h3>
         <p>
-          Cena działki po kolejnych dwóch obniżkach, za każdym razem o ${discount}% w odniesieniu do ceny obowiązującej w danym momencie, jest równa ${finalPrice} zł. Cena tej działki przed obiema obniżkami była, w zaokrągleniu do 1 zł, równa
-        </p>
-        <p>
-          A. ${(initialPrice * 1.02).toFixed(2)} zł<br>
-          B. ${initialPrice} zł<br>
-          C. ${(initialPrice * 0.98).toFixed(2)} zł<br>
-          D. ${(initialPrice * 0.96).toFixed(2)} zł
+          Cena działki po kolejnych dwóch obniżkach, za każdym razem o ${discount}% 
+          w odniesieniu do ceny obowiązującej w danym momencie, jest równa ${finalPrice} zł. 
+          Oblicz cenę tej działki przed obiema obniżkami (w zaokrągleniu do 1 zł).
         </p>
       `;
       
@@ -702,13 +690,8 @@
       const taskContent = `
         <h3>Podobne zadanie:</h3>
         <p>
-          Cenę drukarki obniżono o ${firstDiscount}%, a następnie nową cenę obniżono o ${secondDiscount}%. W wyniku obu tych zmian cena drukarki zmniejszyła się w stosunku do ceny sprzed obu obniżek o
-        </p>
-        <p>
-          A. ${(totalDiscount - 10).toFixed(2)}%<br>
-          B. ${totalDiscount}%<br>
-          C. ${(totalDiscount + 2).toFixed(2)}%<br>
-          D. ${(totalDiscount + 44).toFixed(2)}%
+          Cenę drukarki obniżono o ${firstDiscount}%, a następnie nową cenę obniżono o ${secondDiscount}%. 
+          Oblicz, o ile procent zmniejszyła się cena drukarki w stosunku do ceny sprzed obu obniżek.
         </p>
       `;
       
@@ -733,15 +716,8 @@
         <p>
           Liczba ${result} stanowi ${percentage}% liczby 
           <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math>. 
-          Wtedy liczba 
-          <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> 
-          jest równa
-        </p>
-        <p>
-          A. ${Math.floor(baseNumber * 1.2)}<br>
-          B. ${baseNumber}<br>
-          C. ${Math.floor(baseNumber * 0.9)}<br>
-          D. ${Math.floor(baseNumber * 0.75)}
+          Oblicz liczbę 
+          <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math>.
         </p>
       `;
       
