@@ -1026,6 +1026,9 @@
         const baseNumber = card.dataset.baseNumber;
         const percentage = card.dataset.percentage;
         const result = card.dataset.result;
+        const exactResult = result / (percentage/100);
+        const isRounded = !Number.isInteger(exactResult);
+        const displayResult = isRounded ? `${baseNumber} ≈` : baseNumber;
         
         solutionContainer.innerHTML = `
           <h3>Teoria</h3>
@@ -1057,10 +1060,10 @@
               <mo>=</mo>
               <mfrac><mn>${result}</mn><mn>${percentage/100}</mn></mfrac>
               <mo>=</mo>
-              <mn>${baseNumber}</mn>
+              <mn>${displayResult}</mn>
             </math>
           </p>
-          <p>Odp. Liczba <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> jest równa ${baseNumber}.</p>
+          <p>Odp. Liczba <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> jest równa ${displayResult}.</p>
         `;
       }
     }
