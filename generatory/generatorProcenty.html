@@ -686,9 +686,10 @@
     // --- Generator dla zadania typu "land-price" (cena działki) z MathML ---
     function generateSimilarLandPriceTask(card, contentDiv) {
       const discount = (Math.floor(Math.random() * 5) + 1) * 5; // 5, 10, 15, 20, 25
-      const initialPrice = (Math.floor(Math.random() * 100) + 50) * 1000; // 50000, 51000, ...
+      // Mnożnik 1600 zapewnia, że wynik będzie całkowity nawet dla najgorszego przypadku (np. 0.95*0.95 = 0.9025)
+      const initialPrice = (Math.floor(Math.random() * 100) + 50) * 1600;
       const factor = (1 - discount / 100) * (1 - discount / 100);
-      const finalPrice = (initialPrice * factor).toFixed(2);
+      const finalPrice = initialPrice * factor;
       
       const taskContent = `
         <h3>Podobne zadanie:</h3>
