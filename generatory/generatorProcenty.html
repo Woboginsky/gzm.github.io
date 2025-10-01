@@ -508,18 +508,62 @@
     function generateSimilarBarsTask(card, contentDiv) {
       // Przykładowe losowe dane z poprawionymi zakresami
       const totalEmployees = Math.floor(Math.random() * (300 - 150) + 150); // Zmniejszony zakres dla lepszej czytelności
-      const salaries = [
-        Math.floor(Math.random() * (100 - 60) + 60),  // Zwiększony zakres dla pierwszej grupy
-        Math.floor(Math.random() * (60 - 30) + 30),   // Poprawiony zakres dla drugiej grupy
-        Math.floor(Math.random() * (30 - 15) + 15),   // Poprawiony zakres dla trzeciej grupy
-        Math.floor(Math.random() * (15 - 5) + 5),     // Poprawiony zakres dla czwartej grupy
-        Math.floor(Math.random() * 5 + 1)             // Poprawiony zakres dla piątej grupy
+      let salaries = [
+        Math.floor(Math.random() * (80 - 50) + 50),  // Ograniczenie do 80
+        Math.floor(Math.random() * (70 - 40) + 40),
+        Math.floor(Math.random() * (50 - 25) + 25),
+        Math.floor(Math.random() * (25 - 10) + 10),
+        Math.floor(Math.random() * 10 + 1)
       ];
       
-      // Upewniamy się, że suma wszystkich pracowników zgadza się z totalEmployees
-      const currentSum = salaries.reduce((a, b) => a + b, 0);
-      if (currentSum !== totalEmployees) {
-        salaries[0] += totalEmployees - currentSum;
+      // Skalujemy wartości, aby suma była zgodna z totalEmployees
+      let currentSum = salaries.reduce((a, b) => a + b, 0);
+      if (currentSum > 0) {
+        const scaleFactor = totalEmployees / currentSum;
+        salaries = salaries.map(s => Math.round(s * scaleFactor));
+      }
+
+      // Wprowadzamy limit 80 i redystrybuujemy nadwyżkę
+      let spillover = 0;
+      salaries.forEach((value, index) => {
+        if (value > 80) {
+          spillover += value - 80;
+          salaries[index] = 80;
+        }
+      });
+
+      // Redystrybucja nadwyżki do tych, którzy mają mniej niż 80
+      let attempts = 0;
+      while (spillover > 0 && attempts < 100) {
+        const availableIndices = salaries.map((s, i) => s < 80 ? i : -1).filter(i => i !== -1);
+        if (availableIndices.length === 0) break;
+
+        const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        salaries[randomIndex]++;
+        spillover--;
+        attempts++;
+      }
+
+      // Ostateczna korekta sumy
+      let finalSum = salaries.reduce((a, b) => a + b, 0);
+      let difference = totalEmployees - finalSum;
+
+      attempts = 0;
+      while (difference !== 0 && attempts < 20) {
+        attempts++;
+        if (difference > 0) {
+          const availableIndices = salaries.map((s, i) => s < 80 ? i : -1).filter(i => i !== -1);
+          if (availableIndices.length === 0) break;
+          const targetIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+          salaries[targetIndex]++;
+          difference--;
+        } else {
+          const availableIndices = salaries.map((s, i) => s > 0 ? i : -1).filter(i => i !== -1);
+          if (availableIndices.length === 0) break;
+          const targetIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+          salaries[targetIndex]--;
+          difference++;
+        }
       }
       
       const sumUpToLimit = salaries[0] + salaries[1] + salaries[2];
@@ -581,19 +625,17 @@
     
     // --- Generator dla zadania typu "discount" (podwójna obniżka ceny) z MathML ---
     function generateSimilarDiscountTask(card, contentDiv) {
-      // Losujemy dwie różne obniżki procentowe
-      let p1 = Math.floor(Math.random() * 31) + 10;
-      let p2 = Math.floor(Math.random() * 31) + 10;
+      // Losujemy dwie różne obniżki procentowe (wielokrotności 5 dla ładniejszych wyników)
+      let p1 = (Math.floor(Math.random() * 6) + 2) * 5; // 10, 15, 20, 25, 30, 35
+      let p2 = (Math.floor(Math.random() * 6) + 2) * 5;
       
-      // Upewniamy się, że obniżki są różne
       while (p1 === p2) {
-        p2 = Math.floor(Math.random() * 31) + 10;
+        p2 = (Math.floor(Math.random() * 6) + 2) * 5;
       }
       
-      // Obliczamy końcowy ułamek ceny (1 - p1/100)*(1 - p2/100)
       const firstFactor = (1 - p1 / 100);
       const secondFactor = (1 - p2 / 100);
-      const finalFraction = (firstFactor * secondFactor).toFixed(2); // np. 0.56 (zaokrąglamy do 2 miejsc)
+      const finalFraction = (firstFactor * secondFactor);
       
       const taskContent = `
         <h3>Podobne zadanie:</h3>
@@ -610,23 +652,22 @@
       
       contentDiv.innerHTML = taskContent;
       
-      // Zapisujemy dane w atrybutach karty (do odpowiedzi/rozwiązania)
       card.dataset.p1 = p1;
       card.dataset.p2 = p2;
-      card.dataset.finalFraction = finalFraction; // np. 0.56
+      card.dataset.finalFraction = finalFraction.toFixed(4);
     }
     
     // --- Generator dla zadania typu "example" (przykład) z MathML ---
     function generateSimilarExampleTask(card, contentDiv) {
-      const percentage = Math.floor(Math.random() * 81) + 10; // 10-90%
-      const x = Math.floor(Math.random() * (5000 - 1000) + 1000);
-      const difference = Math.floor(Math.random() * (3000 - 1000) + 1000);
-      const result = Math.round((difference / (percentage / 100)) * 10) / 10; // zaokrąglenie do 1 miejsca po przecinku
+      // Generujemy, aby uniknąć ułamków w wyniku
+      const percentage = (Math.floor(Math.random() * 8) + 1) * 10; // 10, 20, ..., 80
+      const x = (Math.floor(Math.random() * 40) + 10) * 100; // 1000, 1100, ..., 4900
+      const difference = x * (1 - percentage / 100);
       
-      // Wygenerowana treść zadania
       const taskContent = `
         <h3>Podobne zadanie:</h3>
-        <p>${percentage}% liczby 
+        <p>
+          ${percentage}% liczby
           <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
           jest o ${difference} mniejsze od liczby 
           <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math>. 
@@ -637,34 +678,29 @@
       
       contentDiv.innerHTML = taskContent;
       
-      // Zapisujemy dane do wykorzystania w odpowiedzi/rozwiązaniu
       card.dataset.percentage = percentage;
-      card.dataset.x = x;
       card.dataset.difference = difference;
-      card.dataset.result = result;
+      card.dataset.x = x;
     }
     
     // --- Generator dla zadania typu "land-price" (cena działki) z MathML ---
     function generateSimilarLandPriceTask(card, contentDiv) {
-      // Losujemy procent obniżki między 5 a 30
-      const discount = Math.floor(Math.random() * 26) + 5; // 5-30%
-      const initialPrice = Math.floor(Math.random() * (150000 - 50000) + 50000);
-      const factor = (1 - discount/100) * (1 - discount/100); // Dwukrotne zastosowanie tej samej obniżki
+      const discount = (Math.floor(Math.random() * 5) + 1) * 5; // 5, 10, 15, 20, 25
+      const initialPrice = (Math.floor(Math.random() * 100) + 50) * 1000; // 50000, 51000, ...
+      const factor = (1 - discount / 100) * (1 - discount / 100);
       const finalPrice = (initialPrice * factor).toFixed(2);
       
-      // Wygenerowana treść zadania
       const taskContent = `
         <h3>Podobne zadanie:</h3>
         <p>
-          Cena działki po kolejnych dwóch obniżkach, za każdym razem o ${discount}% 
+          Cena działki po kolejnych dwóch obniżkach, za każdym razem o ${discount}%,
           w odniesieniu do ceny obowiązującej w danym momencie, jest równa ${finalPrice} zł. 
-          Oblicz cenę tej działki przed obiema obniżkami (w zaokrągleniu do 1 zł).
+          Oblicz cenę tej działki przed obiema obniżkami.
         </p>
       `;
       
       contentDiv.innerHTML = taskContent;
       
-      // Zapisujemy dane do wykorzystania w odpowiedzi/rozwiązaniu
       card.dataset.discount = discount;
       card.dataset.initialPrice = initialPrice;
       card.dataset.finalPrice = finalPrice;
@@ -672,19 +708,15 @@
     
     // --- Generator dla zadania typu "printer-price" (cena drukarki) z MathML ---
     function generateSimilarPrinterPriceTask(card, contentDiv) {
-      // Losujemy dwa różne procenty obniżek
-      const firstDiscount = Math.floor(Math.random() * 31) + 10; // 10-40%
-      let secondDiscount = Math.floor(Math.random() * 31) + 10;
+      const firstDiscount = (Math.floor(Math.random() * 6) + 2) * 5; // 10, 15, ..., 35
+      let secondDiscount = (Math.floor(Math.random() * 6) + 2) * 5;
       while (secondDiscount === firstDiscount) {
-        secondDiscount = Math.floor(Math.random() * 31) + 10;
+        secondDiscount = (Math.floor(Math.random() * 6) + 2) * 5;
       }
       
-      const initialPrice = Math.floor(Math.random() * (1500 - 500) + 500);
-      const factor = (1 - firstDiscount/100) * (1 - secondDiscount/100);
-      const finalPrice = (initialPrice * factor).toFixed(2);
-      const totalDiscount = (100 * (1 - factor)).toFixed(2);
+      const factor = (1 - firstDiscount / 100) * (1 - secondDiscount / 100);
+      const totalDiscount = 100 * (1 - factor);
       
-      // Wygenerowana treść zadania
       const taskContent = `
         <h3>Podobne zadanie:</h3>
         <p>
@@ -695,20 +727,20 @@
       
       contentDiv.innerHTML = taskContent;
       
-      // Zapisujemy dane do wykorzystania w odpowiedzi/rozwiązaniu
       card.dataset.firstDiscount = firstDiscount;
       card.dataset.secondDiscount = secondDiscount;
-      card.dataset.initialPrice = initialPrice;
-      card.dataset.finalPrice = finalPrice;
-      card.dataset.totalDiscount = totalDiscount;
+      card.dataset.totalDiscount = totalDiscount.toFixed(2);
     }
     
     // --- Generator dla zadania typu "percentage-base" (znalezienie liczby podstawowej) z MathML ---
     function generateSimilarPercentageBaseTask(card, contentDiv) {
-      const percentage = Math.floor(Math.random() * (200 - 120) + 120); // procent od 120% do 200%
-      const baseNumber = Math.floor(Math.random() * (100 - 20) + 20); // liczba od 20 do 100
-      // Obliczamy wynik tak, aby był całkowity
-      const result = Math.floor((baseNumber * percentage) / 100);
+      let percentage, baseNumber, result;
+      // Pętla do znalezienia liczb, które dają całkowity wynik
+      do {
+        percentage = (Math.floor(Math.random() * 16) + 5) * 10; // 50, 60, ..., 200
+        baseNumber = Math.floor(Math.random() * 81) + 20; // 20-100
+        result = (baseNumber * percentage) / 100;
+      } while (result !== Math.floor(result));
       
       const taskContent = `
         <h3>Podobne zadanie:</h3>
@@ -722,7 +754,6 @@
       
       contentDiv.innerHTML = taskContent;
       
-      // Zapisz dane do wykorzystania w odpowiedzi/rozwiązaniu
       card.dataset.baseNumber = baseNumber;
       card.dataset.percentage = percentage;
       card.dataset.result = result;
@@ -757,19 +788,19 @@
           </p>
         `;
       } else if (taskType === 'example') {
-        const result = card.dataset.result;
+        const x = card.dataset.x;
         answerContainer.innerHTML = `
           <p><strong>Odpowiedź:</strong> 
             Liczba 
             <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
-            jest równa ${result}.
+            jest równa ${x}.
           </p>
         `;
       } else if (taskType === 'land-price') {
         const initialPrice = card.dataset.initialPrice;
         answerContainer.innerHTML = `
           <p><strong>Odpowiedź:</strong> 
-            Początkowa cena działki jest równa ${initialPrice} zł.
+            Początkowa cena działki była równa ${initialPrice} zł.
           </p>
         `;
       } else if (taskType === 'printer-price') {
@@ -857,214 +888,105 @@
         `;
       } else if (taskType === 'discount') {
         // Dane do zadania z obniżką
-        const p1 = card.dataset.p1;
-        const p2 = card.dataset.p2;
+        const p1 = parseFloat(card.dataset.p1);
+        const p2 = parseFloat(card.dataset.p2);
         const fraction = card.dataset.finalFraction;
         
-        // Dokładnie te same kroki, co w przykładzie po lewej:
+        const factor1 = 1 - p1 / 100;
+        const factor2 = 1 - p2 / 100;
+        const finalFactor = (factor1 * factor2).toFixed(4);
+
         solutionContainer.innerHTML = `
           <h3>Teoria</h3>
           <p>- Procenty<br>- Zamiana procentu na ułamek</p>
-          
           <h3>Rozwiązanie:</h3>
           <p>
-            Cena obniżona o 
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mn>${p1}</mn><mo>%</mo>
-            </math>
-            to 
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mn>${100 - p1}</mn><mo>%</mo>
-            </math>
-            ceny początkowej.
-            <br />
-            Cena towaru po pierwszej obniżce to:
-            <br />
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mfrac><mn>${100 - p1}</mn><mn>100</mn></mfrac>
-              <mo>·</mo>
-              <mi>x</mi>
-              <mo>=</mo>
-              <mn>${(1 - p1/100).toFixed(2)}</mn><mi>x</mi>
-            </math>
+            Cena obniżona o <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${p1}</mn><mo>%</mo></math> to <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${100 - p1}</mn><mo>%</mo></math> ceny początkowej.
+            <br />Cena towaru po pierwszej obniżce to:
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>${100 - p1}</mn><mn>100</mn></mfrac><mo>·</mo><mi>x</mi><mo>=</mo><mn>${factor1.toFixed(2)}</mn><mi>x</mi></math>
           </p>
           <p>
-            100% - ${p2}% = ${100 - p2}%
-            <br />
-            Cena towaru po drugiej obniżce to:
-            <br />
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mfrac><mn>${100 - p2}</mn><mn>100</mn></mfrac>
-              <mo>·</mo>
-              <mn>${(1 - p1/100).toFixed(2)}</mn><mi>x</mi>
-              <mo>=</mo>
-              <mn>${(1 - p2/100).toFixed(2)}</mn>
-              <mo>·</mo>
-              <mn>${(1 - p1/100).toFixed(2)}</mn><mi>x</mi>
-              <mo>=</mo>
-              <mn>${fraction}</mn><mi>x</mi>
-            </math>
+            Cena po drugiej obniżce (o <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${p2}</mn><mo>%</mo></math>) to <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${100 - p2}</mn><mo>%</mo></math> nowej ceny.
+            <br />Cena towaru po drugiej obniżce to:
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>${100 - p2}</mn><mn>100</mn></mfrac><mo>·</mo><mn>${factor1.toFixed(2)}</mn><mi>x</mi><mo>=</mo><mn>${factor2.toFixed(2)}</mn><mo>·</mo><mn>${factor1.toFixed(2)}</mn><mi>x</mi><mo>=</mo><mn>${finalFactor}</mn><mi>x</mi></math>
           </p>
-          <p>
-            Odp. Cena towaru po obydwu obniżkach jest równa 
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mn>${fraction}</mn><mi>x</mi>
-            </math>.
-          </p>
+          <p>Odp. Cena towaru po obydwu obniżkach jest równa <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${finalFactor}</mn><mi>x</mi></math>.</p>
         `;
       } else if (taskType === 'example') {
-        // Dane do zadania z przykładem
-        const percentage = card.dataset.percentage;
-        const x = card.dataset.x;
-        const difference = card.dataset.difference;
-        const result = card.dataset.result;
+        const percentage = parseFloat(card.dataset.percentage);
+        const difference = parseFloat(card.dataset.difference);
+        const x = parseFloat(card.dataset.x);
         
         solutionContainer.innerHTML = `
           <h3>Teoria</h3>
           <p>- Procenty<br>- Zamiana procentu na ułamek</p>
-          
           <h3>Rozwiązanie:</h3>
           <p>
-            ${percentage}% z 
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
-            = 
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
-            - ${difference}<br>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mfrac><mn>${percentage}</mn><mn>100</mn></mfrac>
-              <mo>·</mo>
-              <mi>x</mi>
-            </math> 
-            = 
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mi>x</mi>
-              <mo>-</mo>
-              <mn>${difference}</mn>
-            </math><br>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mfrac><mn>${percentage}</mn><mn>100</mn></mfrac>
-              <mo>·</mo>
-              <mi>x</mi>
-              <mo>-</mo>
-              <mi>x</mi>
-              <mo>=</mo>
-              <mo>-</mo>
-              <mn>${difference}</mn>
-            </math><br>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mfrac><mn>${percentage-100}</mn><mn>100</mn></mfrac>
-              <mo>·</mo>
-              <mi>x</mi>
-              <mo>=</mo>
-              <mo>-</mo>
-              <mn>${difference}</mn>
-            </math><br>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mi>x</mi>
-              <mo>=</mo>
-              <mfrac>
-                <mn>${difference}</mn>
-                <mrow>
-                  <mo>-</mo>
-                  <mfrac><mn>${percentage-100}</mn><mn>100</mn></mfrac>
-                </mrow>
-              </mfrac>
-              <mo>=</mo>
-              <mn>${result}</mn>
-            </math>
-            ${Number.isInteger(result) ? '' : ' ≈ ' + result}
+            <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>${percentage}</mn><mn>100</mn></mfrac><mi>x</mi><mo>=</mo><mi>x</mi><mo>-</mo><mn>${difference}</mn></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${percentage / 100}</mn><mi>x</mi><mo>-</mo><mi>x</mi><mo>=</mo><mo>-</mo><mn>${difference}</mn></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${(percentage / 100) - 1}</mn><mi>x</mi><mo>=</mo><mo>-</mo><mn>${difference}</mn></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mfrac><mrow><mo>-</mo><mn>${difference}</mn></mrow><mn>${(percentage / 100) - 1}</mn></mfrac></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>${x}</mn></math>
           </p>
-          <p>Odp. Liczba 
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> 
-            ${Number.isInteger(result) ? 'jest równa' : 'jest w przybliżeniu równa'} ${result}.
-          </p>
+          <p>Odp. Liczba <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> jest równa ${x}.</p>
         `;
       } else if (taskType === 'land-price') {
-        // Dane do zadania z ceną działki
-        const discount = card.dataset.discount;
-        const initialPrice = card.dataset.initialPrice;
-        const finalPrice = card.dataset.finalPrice;
-        
+        const discount = parseFloat(card.dataset.discount);
+        const initialPrice = parseFloat(card.dataset.initialPrice);
+        const finalPrice = parseFloat(card.dataset.finalPrice);
+        const factor = (1 - discount / 100);
+        const finalFactor = (factor * factor).toFixed(4);
+
         solutionContainer.innerHTML = `
           <h3>Teoria</h3>
           <p>- Zamiana procentu na ułamek</p>
-          
           <h3>Rozwiązanie:</h3>
           <p>
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> – cena początkowa działki<br>
-            Cena obniżona o ${discount}% to 100% - ${discount}% = ${100 - discount}% początkowej ceny.<br>
-            Cena po pierwszej obniżce: ${100 - discount}% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(100 - discount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
-            Cena po drugiej obniżce: ${100 - discount}% z 0,${(100 - discount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(100 - discount)/100} * 0,${(100 - discount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(1 - discount/100) * (1 - discount/100)}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
-            0,${(1 - discount/100) * (1 - discount/100)}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = ${finalPrice} / : 0,${(1 - discount/100) * (1 - discount/100)}<br>
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = ${initialPrice}
+            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> – cena początkowa działki
+            <br />Cena po pierwszej obniżce o ${discount}%: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>·</mo><mo>(</mo><mn>1</mn><mo>-</mo><mfrac><mn>${discount}</mn><mn>100</mn></mfrac><mo>)</mo><mo>=</mo><mn>${factor.toFixed(2)}</mn><mi>x</mi></math>
+            <br />Cena po drugiej obniżce o ${discount}%: <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${factor.toFixed(2)}</mn><mi>x</mi><mo>·</mo><mn>${factor.toFixed(2)}</mn><mo>=</mo><mn>${finalFactor}</mn><mi>x</mi></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${finalFactor}</mn><mi>x</mi><mo>=</mo><mn>${finalPrice}</mn></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mfrac><mn>${finalPrice}</mn><mn>${finalFactor}</mn></mfrac><mo>=</mo><mn>${initialPrice}</mn></math>
           </p>
           <p>Odp. Początkowa cena działki jest równa ${initialPrice} zł.</p>
         `;
       } else if (taskType === 'printer-price') {
-        // Dane do zadania z ceną drukarki
-        const firstDiscount = card.dataset.firstDiscount;
-        const secondDiscount = card.dataset.secondDiscount;
-        const initialPrice = card.dataset.initialPrice;
-        const finalPrice = card.dataset.finalPrice;
-        const totalDiscount = card.dataset.totalDiscount;
-        
+        const d1 = parseFloat(card.dataset.firstDiscount);
+        const d2 = parseFloat(card.dataset.secondDiscount);
+        const totalDiscount = parseFloat(card.dataset.totalDiscount);
+        const factor1 = 1 - d1 / 100;
+        const factor2 = 1 - d2 / 100;
+        const finalFactor = factor1 * factor2;
+
         solutionContainer.innerHTML = `
           <h3>Teoria</h3>
           <p>- Zamiana procentu na ułamek</p>
-          
           <h3>Rozwiązanie:</h3>
           <p>
-            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> – początkowa cena drukarki<br>
-            Po pierwszej obniżce cena drukarki to 100% - ${firstDiscount}% = ${100 - firstDiscount}% początkowej ceny.<br>
-            ${100 - firstDiscount}% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(100 - firstDiscount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
-            Po drugiej obniżce cena drukarki to 100% - ${secondDiscount}% = ${100 - secondDiscount}% poprzedniej ceny.<br>
-            ${100 - secondDiscount}% z 0,${(100 - firstDiscount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(100 - secondDiscount)/100} * 0,${(100 - firstDiscount)/100}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> = 0,${(1 - firstDiscount/100) * (1 - secondDiscount/100)}<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math><br>
-            0,${(1 - firstDiscount/100) * (1 - secondDiscount/100)} = 72% = 100% - ${totalDiscount}%
+            <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math> – początkowa cena drukarki
+            <br />Po pierwszej obniżce o ${d1}% cena wynosi: <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${factor1.toFixed(2)}</mn><mi>x</mi></math>
+            <br />Po drugiej obniżce o ${d2}% cena wynosi: <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${factor2.toFixed(2)}</mn><mo>·</mo><mo>(</mo><mn>${factor1.toFixed(2)}</mn><mi>x</mi><mo>)</mo><mo>=</mo><mn>${finalFactor.toFixed(2)}</mn><mi>x</mi></math>
+            <br />Cena stanowi <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${finalFactor * 100}</mn><mo>%</mo></math> ceny początkowej.
+            <br />Obniżka wynosi: <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>100</mn><mo>%</mo><mo>-</mo><mn>${finalFactor * 100}</mn><mo>%</mo><mo>=</mo><mn>${totalDiscount}</mn><mo>%</mo></math>
           </p>
           <p>Odp. Cena drukarki po dwóch obniżkach zmniejszyła się o ${totalDiscount}%.</p>
         `;
       } else if (taskType === 'percentage-base') {
-        const baseNumber = card.dataset.baseNumber;
-        const percentage = card.dataset.percentage;
-        const result = card.dataset.result;
-        const exactResult = result / (percentage/100);
-        const isRounded = !Number.isInteger(exactResult);
-        const displayResult = isRounded ? `${baseNumber} ≈` : baseNumber;
+        const baseNumber = parseFloat(card.dataset.baseNumber);
+        const percentage = parseFloat(card.dataset.percentage);
+        const result = parseFloat(card.dataset.result);
         
         solutionContainer.innerHTML = `
           <h3>Teoria</h3>
           <p>- Procenty<br>- Zamiana procentu na ułamek</p>
-          
           <h3>Rozwiązanie:</h3>
-          <p>${percentage}% z <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> = ${result}</p>
           <p>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mfrac><mn>${percentage}</mn><mn>100</mn></mfrac>
-              <mo>·</mo>
-              <mi>c</mi>
-              <mo>=</mo>
-              <mn>${result}</mn>
-            </math>
+            <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${percentage}</mn><mo>%</mo><mo>·</mo><mi>c</mi><mo>=</mo><mn>${result}</mn></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>${percentage / 100}</mn><mo>·</mo><mi>c</mi><mo>=</mo><mn>${result}</mn></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi><mo>=</mo><mfrac><mn>${result}</mn><mn>${percentage / 100}</mn></mfrac></math>
+            <br /><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi><mo>=</mo><mn>${baseNumber}</mn></math>
           </p>
-          <p>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mn>${percentage/100}</mn>
-              <mo>·</mo>
-              <mi>c</mi>
-              <mo>=</mo>
-              <mn>${result}</mn>
-            </math>
-          </p>
-          <p>
-            <math xmlns="http://www.w3.org/1998/Math/MathML">
-              <mi>c</mi>
-              <mo>=</mo>
-              <mfrac><mn>${result}</mn><mn>${percentage/100}</mn></mfrac>
-              <mo>=</mo>
-              <mn>${displayResult}</mn>
-            </math>
-          </p>
-          <p>Odp. Liczba <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> jest równa ${displayResult}.</p>
+          <p>Odp. Liczba <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> jest równa ${baseNumber}.</p>
         `;
       }
     }
